@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-// const _ = require("lodash");
 const user_route = require("./route/users");
 const boards_route = require("./route/boards");
 
@@ -12,6 +11,5 @@ app.use("/boards", boards_route);
 app.listen(3000);
 
 app.get("/", (req,res) => {
-    
     res.send("hi");
 });

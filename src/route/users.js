@@ -1,62 +1,119 @@
-
 const express = require("express");
 const router = express.Router();
 const _ = require("lodash");
 
-router.get("/", (req,res) => {
-    let msg = "유저가 존재하지 않습니다.";
-    if(users.length > 0){
-        msg = users.length+"명의 유저가 존재합니다.";
-    }
-        res.send({msg,result: users});
-});
-router.get("/:id", (req,res) => {
-    let msg = "ID가"+req.params.id+"인 유저가 존재하지 않습니다.";
-    let user = _.find(users, ["id",parseInt(req.params.id)]);
+const Sequelize = require("sequelize");
+const sequelize = new Sequelize("node_example","root","1234",{host:"localhost", dialect:"mysql"});
 
-    if(user){
-        msg = "성공적으로 조회하였습니다.";
+const check_sequlize_auth = async () => {
+    try{
+        await sequelize.authenticate();
+        console.log("연결 성공");
+    }catch(err){
+        console.log("연결 실패: ", err);
     }
-        res.send({msg,result: user});
-});
-
-
-router.post("/", (req,res) => {
-    const check_user = _.find(users, function(o) {return o.id == req.body.id});
-    let msg = req.body.id+"아이디를 가진 유저가 이미 존재합니다.";
-    let success = false;
-    if(!check_user){
-        users.push(req.body);
-        msg = req.body.name+ "유저가 추가되었습니다.";
-        success = true;
+};
+const User = sequelize.define("user",{
+    name:{
+        type:Sequelize.STRING,
+        allowNull: false
+    },
+    age:{
+        type:Sequelize.INTEGER,
+        allowNull: false
+    },
+    address:{
+        type:Sequelize.STRING,
+        allowNull: false
     }
-    res.send({msg,success});
 });
 
-router.put("/:id", (req,res) => {
-    let check_user = _.find(users, ["id",parseInt(req.params.id)]);
-    let msg =req.params.id+"아이디를 가진 유저가 존재하지 않습니다.";
+User.sync({force:true }).then(()=>{
+    return User.create({
+        name:"홍길동",
+        age:"10",
+        address:"seoul"
+    });
+}).then(()=>{
+    return User.create({
+        name:"김철수",
+        age:"23",
+        address:"busan"
+    });
+});
 
-    if(check_user){
-        users = users.map(entry => {
-            if(entry.id === parseInt(req.params.id)){
-                entry.name = req.body.name;
-            }
-            return entry;
+check_sequlize_auth();
+
+router.get("/", async(req,res) => {
+    let result = await User.findAll({
+        attributes: ["name"],
+        where:{
+            address:"seoul"
+        }
+    });
+    res.send(result);
+});
+
+router.get("/address/:address", async(req,res) => {
+    let result = await User.findAll({
+        where:{
+            address: req.params.address
+        }
+    });
+    res.send(result);
+});
+
+router.get("/:id", async(req,res) => {
+    let result = await User.findOne({
+        where: {
+            id:req.params.id
+        }
+    });
+    res.send(result);
+});
+
+
+router.post("/", async(req,res) => {
+    let result = false;
+    try{
+        await User.create({id:req.body.id, name:req.body.name, age:req.body.age, address:req.body.address});
+        result = true;
+    }catch(err){
+        console.error(err);
+    }
+    res.send(result);
+});
+
+router.put("/:id", async(req,res) => {
+    let result = false;
+    try{
+        await User.update({
+            id:'', 
+            name:'', 
+            age:'', 
+            address:''
         });
-        msg = "성공적으로 수정되었습니다.";
+        result = true;
+    }catch(err){
+        console.error(err);
     }
-    res.send({msg});
+    res.send(result);
 });
 
-router.delete("/:id", (req,res) => {
-    let check_user = _.find(users, ["id",parseInt(req.params.id)]);
-    let msg =req.params.id+"아이디를 가진 유저가 존재하지 않습니다.";
-    if(check_user){
-        msg = "성공적으로 삭제 되었습니다.";
-        users = _.reject(users,["id",parseInt(req.params.id)]);
+router.delete("/:id", async(req,res) => {
+    let result = false;
+    try{
+        await User.destory({
+            id:req.body.id, 
+            name:req.body.name, 
+            age:req.body.age, 
+            address:req.body.address
+        });
+        result = true;
+    }catch(err){
+        console.error(err);
     }
-    res.send({msg});
+    res.send(result);
 });
 
 module.exports = router;

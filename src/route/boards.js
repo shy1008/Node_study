@@ -1,13 +1,11 @@
-
 const express = require("express");
 const router = express.Router();
-const _ = require("lodash");
 
 router.get("/", (req,res) => {
-        res.send("get");
+    res.send("get all");
 });
 router.get("/:id", (req,res) => {
-        res.send("get");
+    res.send("get id");
 });
 
 router.post("/", (req,res) => {
@@ -19,7 +17,7 @@ router.put("/:id", (req,res) => {
 });
 
 router.delete("/:id", (req,res) => {
-    res.send("post");
+    res.send("delete");
 });
 
 module.exports = router;
