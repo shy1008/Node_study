@@ -3,9 +3,6 @@ const express = require("express");
 const router = express.Router();
 const _ = require("lodash");
 
-let users = [];
-let user = null; 
-
 router.get("/", (req,res) => {
     let msg = "유저가 존재하지 않습니다.";
     if(users.length > 0){
