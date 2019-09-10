@@ -88,10 +88,13 @@ router.put("/:id", async(req,res) => {
     let result = false;
     try{
         await User.update({
-            id:'', 
-            name:'', 
-            age:'', 
-            address:''
+            name: req.body.name, 
+            age: req.body.age,
+            address: req.body.address 
+        }, {
+            where: {
+                id:req.params.id
+            }
         });
         result = true;
     }catch(err){
@@ -104,10 +107,9 @@ router.delete("/:id", async(req,res) => {
     let result = false;
     try{
         await User.destory({
-            id:req.body.id, 
-            name:req.body.name, 
-            age:req.body.age, 
-            address:req.body.address
+           where:{
+               id:req.params.id
+           }
         });
         result = true;
     }catch(err){
